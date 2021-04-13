@@ -1,0 +1,63 @@
+<?php
+function createImg($path) {
+    $w = 200;
+    $h = 100;
+    $typeNum = exif_imagetype($path);
+    $headerContent = image_type_to_mime_type($typeNum);
+
+    switch ($typeNum) {
+        case 1:
+            $img = imagecreatefromgif($path);
+            break;
+        case 2:
+            $img = imagecreatefromjpeg($path);
+            break;
+        case 3:
+            $img = imagecreatefrompng($path);
+            break;
+        default:
+            return '';
+            break;
+    }
+
+    $width = imagesx($img);
+    $height = imagesy($img);
+    $Ko = $w / $h;
+    $Kk = $width / $height;
+
+    if ($Ko >= $Kk) {
+        $th = $h;
+        $tw = $h * $Kk;
+
+    } elseif ($Ko < $Kk) {
+        $tw = $w;
+        $th = $w / $Kk;
+    }
+
+    $x = ($w - $tw)/2;
+    $y = ($h - $th)/2;
+
+    $im = imagecreatetruecolor($w, $h);
+    $background = imagecolorallocate($im, 255, 255, 255);
+    imagefilledrectangle($im, 0, 0, $w, $h, $background);
+    imagecopyresampled($im, $img, $x, $y, 0, 0, $tw, $th, $width, $height);
+
+    header("Content-type: " . $headerContent);
+    switch ($typeNum) {
+        case 1:
+            imagegif($im, null, 100);
+            break;
+        case 2:
+            imagejpeg($im, null, 100);
+            break;
+        case 3:
+            imagepng($im, null, 100);
+            break;
+        default:
+            return '';
+            break;
+    }
+    imagedestroy($im);
+}
+
+createImg('img/image.png');
