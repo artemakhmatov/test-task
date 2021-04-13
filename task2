@@ -61,3 +61,4 @@ function createImg($path) {
 }
 
 createImg('img/image.png');
+?>
